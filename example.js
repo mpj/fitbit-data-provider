@@ -24,7 +24,6 @@ app.get('/', function (req, res) {
   client.getAccessToken(req, res, function (error, newToken) {
     if(newToken) {
       token = newToken;
-      x§
       var credentialsProvider = FitbitCredentialsProvider.getInstance()
       credentialsProvider.set({
         apiKey:       apiKey,
@@ -33,9 +32,9 @@ app.get('/', function (req, res) {
         tokenSecret:  token.oauth_token_secret
       })
 
-      var stepsProvider = require('./provider.js')
+      var FitbitStepsProvider = require('./provider.js')
+      var stepsProvider = FitbitStepsProvider.getInstance()
       stepsProvider.getSteps(function(err, steps) {
-          console.log("arguments cb getSteps", arguments )
           res.writeHead(200, {'Content-Type':'text/html'});
           res.end('<html>'+token.oauth_token+'/'+token.oauth_token_secret+'</html>');
         });

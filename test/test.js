@@ -36,13 +36,13 @@ describe("given a faux fitbit client", function() {
             oauth_token.should.equal(credentials.token)
             oauth_token_secret.should.equal(credentials.tokenSecret)
           }
-          callback(null, null, JSON.stringify({
+          callback(null, null, {
             "activities-steps":[
               {"dateTime":"2011-04-27","value":5490},
               {"dateTime":"2011-04-28","value":2344},
               {"dateTime":"2011-04-29","value":2779}
             ]
-          }))
+          })
         }
       }
     }

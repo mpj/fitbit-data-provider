@@ -21,7 +21,7 @@ FitbitStepsProvider.prototype.getSteps = function(callback) {
         oauth_token: credentials.token,
         oauth_token_secret: credentials.tokenSecret
       }
-    }, function(error, resp, json) {
+    }, function(error, resp, data) {
       var steps, map;
 
       if (error) {
@@ -32,7 +32,7 @@ FitbitStepsProvider.prototype.getSteps = function(callback) {
         return;
       }
 
-      steps = JSON.parse(json)['activities-steps']
+      steps = data['activities-steps']
       map = {}
       steps.forEach(function(s) { map[s.dateTime] = s.value })
       callback(null, map);
