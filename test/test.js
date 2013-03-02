@@ -52,11 +52,12 @@ describe("given a faux fitbit client", function() {
   describe('calls getSteps', function() {
 
     beforeEach(function(done) {
-      var stepProvider =
+      var FitbitStepsProvider =
         loadModule('./provider.js', {
           'fitbit-js' : fitbit,
           'fitbit-credentials-provider': FitbitCredentialsProvider
-        }).exports
+        }).module.exports
+      var stepProvider = FitbitStepsProvider.getInstance()
       stepProvider.getSteps(function(err, steps) {
         result = steps
         done()
@@ -87,10 +88,11 @@ describe('given that the fitbit client returns an error', function() {
 
   describe('calls getSteps', function() {
     beforeEach(function(done) {
-      var stepProvider = loadModule('./provider.js', {
+      var FitbitStepsProvider = loadModule('./provider.js', {
         'fitbit-js': fitbit,
         'fitbit-credentials-provider': FitbitCredentialsProvider
-      }).exports;
+      }).module.exports;
+      var stepProvider = FitbitStepsProvider.getInstance()
       stepProvider.getSteps(function(err, steps) {
         result = err
         done()

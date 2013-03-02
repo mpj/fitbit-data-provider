@@ -1,7 +1,13 @@
 var fitbit = require('fitbit-js')
 var FitbitCredentialsProvider = require('fitbit-credentials-provider')
 
-module.exports.getSteps = function(callback) {
+function FitbitStepsProvider() {}
+
+FitbitStepsProvider.getInstance = function() {
+  return new FitbitStepsProvider()
+}
+
+FitbitStepsProvider.prototype.getSteps = function(callback) {
 
   var credentialsProvider = FitbitCredentialsProvider.getInstance()
   var credentials = credentialsProvider.get()
@@ -32,3 +38,5 @@ module.exports.getSteps = function(callback) {
       callback(null, map);
     })
 }
+
+module.exports = FitbitStepsProvider
