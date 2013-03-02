@@ -2,21 +2,37 @@ var loadModule = require('./load-module').loadModule
 var chai = require('chai')
 chai.should()
 
-var fitbit, result;
+var fitbit, result, FitbitCredentials
+
+var credentials = {
+  apiKey: 'api123',
+  apiSecret: 'apiSecret456',
+  token: 'token123',
+  tokenSecret: 'secret456'
+}
+
+FitbitCredentials = {
+  getInstance: function() {
+    return credentials;
+  }
+}
 
 describe("given a faux fitbit client", function() {
 
   beforeEach(function() {
+
+
+
     fitbit = function(apiKey, apiSecret) {
-      apiKey.should.equal('api123')
-      apiSecret.should.equal('apiSecret456');
+      apiKey.should.equal(credentials.apiKey)
+      apiSecret.should.equal(credentials.apiSecret);
       return {
         apiCall: function(method, path, params, callback) {
           method.should.equal('GET')
           path.should.equal('/user/-/activities/steps/date/today/7d.json')
           with(params.token) {
-            oauth_token.should.equal('token123')
-            oauth_token_secret.should.equal('secret456')
+            oauth_token.should.equal(credentials.token)
+            oauth_token_secret.should.equal(credentials.tokenSecret)
           }
           callback(null, null, JSON.stringify({
             "activities-steps":[
@@ -35,8 +51,11 @@ describe("given a faux fitbit client", function() {
 
     beforeEach(function(done) {
       var stepProvider =
-        loadModule('./provider.js', { 'fitbit-js' : fitbit }).exports
-      stepProvider.getSteps('api123', 'apiSecret456', 'token123', 'secret456', function(err, steps) {
+        loadModule('./provider.js', {
+          'fitbit-js' : fitbit,
+          'fitbit-credentials': FitbitCredentials
+        }).exports
+      stepProvider.getSteps(function(err, steps) {
         result = steps
         done()
       })
@@ -67,9 +86,10 @@ describe('given that the fitbit client returns an error', function() {
   describe('calls getSteps', function() {
     beforeEach(function(done) {
       var stepProvider = loadModule('./provider.js', {
-        'fitbit-js': fitbit
+        'fitbit-js': fitbit,
+        'fitbit-credentials': FitbitCredentials
       }).exports;
-      stepProvider.getSteps('anyapikey', 'anyapisecret', 'thistokenisinvalid', 'hackingyou', function(err, steps) {
+      stepProvider.getSteps(function(err, steps) {
         result = err
         done()
       })

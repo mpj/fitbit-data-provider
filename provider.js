@@ -1,14 +1,18 @@
 var fitbit = require('fitbit-js')
+var FitbitCredentials = require('fitbit-credentials')
 
-module.exports.getSteps = function(apiKey, apiSecret, oAuthToken, oAuthTokenSecret, callback) {
-  var client = fitbit(apiKey, apiSecret);
+module.exports.getSteps = function(callback) {
+
+  var credentials = FitbitCredentials.getInstance();
+
+  var client = fitbit(credentials.apiKey, credentials.apiSecret);
   client.apiCall(
     'GET',
     '/user/-/activities/steps/date/today/7d.json',
     {
       token: {
-        oauth_token: oAuthToken,
-        oauth_token_secret: oAuthTokenSecret
+        oauth_token: credentials.token,
+        oauth_token_secret: credentials.tokenSecret
       }
     }, function(error, resp, json) {
       var steps, map;
