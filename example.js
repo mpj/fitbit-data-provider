@@ -36,7 +36,7 @@ app.get('/', function (req, res) {
       var stepsProvider = FitbitStepsProvider.getInstance()
       stepsProvider.getSteps(function(err, steps) {
           res.writeHead(200, {'Content-Type':'text/html'});
-          res.end('<html>'+token.oauth_token+'/'+token.oauth_token_secret+'</html>');
+          res.end('<html>'+token.oauth_token+'/'+token.oauth_token_secret+JSON.stringify(steps)+'</html>');
         });
     }
   });

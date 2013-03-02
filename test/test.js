@@ -31,7 +31,7 @@ describe("given a faux fitbit client", function() {
       return {
         apiCall: function(method, path, params, callback) {
           method.should.equal('GET')
-          path.should.equal('/user/-/activities/steps/date/today/7d.json')
+          path.should.equal('/user/-/activities/steps/date/today/max.json')
           with(params.token) {
             oauth_token.should.equal(credentials.token)
             oauth_token_secret.should.equal(credentials.tokenSecret)

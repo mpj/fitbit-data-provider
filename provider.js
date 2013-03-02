@@ -15,7 +15,7 @@ FitbitStepsProvider.prototype.getSteps = function(callback) {
   var client = fitbit(credentials.apiKey, credentials.apiSecret)
   client.apiCall(
     'GET',
-    '/user/-/activities/steps/date/today/7d.json',
+    '/user/-/activities/steps/date/today/max.json',
     {
       token: {
         oauth_token: credentials.token,
