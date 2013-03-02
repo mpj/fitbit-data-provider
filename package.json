@@ -9,7 +9,8 @@
   , "dependencies": {
     "express": "*",
     "connect": "*",
-    "fitbit-js": "*"
+    "fitbit-js": "*",
+    "fitbit-credentials-provider": "git+ssh://git@github.com:mpj/fitbit-credentials-provider.git#master"
   }
 
 }

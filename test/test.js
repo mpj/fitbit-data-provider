@@ -11,17 +11,19 @@ var credentials = {
   tokenSecret: 'secret456'
 }
 
-FitbitCredentials = {
+FitbitCredentialsProvider = {
   getInstance: function() {
-    return credentials;
+    return {
+      get: function() {
+        return credentials
+      }
+    }
   }
 }
 
 describe("given a faux fitbit client", function() {
 
   beforeEach(function() {
-
-
 
     fitbit = function(apiKey, apiSecret) {
       apiKey.should.equal(credentials.apiKey)
@@ -53,7 +55,7 @@ describe("given a faux fitbit client", function() {
       var stepProvider =
         loadModule('./provider.js', {
           'fitbit-js' : fitbit,
-          'fitbit-credentials': FitbitCredentials
+          'fitbit-credentials-provider': FitbitCredentialsProvider
         }).exports
       stepProvider.getSteps(function(err, steps) {
         result = steps
@@ -87,7 +89,7 @@ describe('given that the fitbit client returns an error', function() {
     beforeEach(function(done) {
       var stepProvider = loadModule('./provider.js', {
         'fitbit-js': fitbit,
-        'fitbit-credentials': FitbitCredentials
+        'fitbit-credentials-provider': FitbitCredentialsProvider
       }).exports;
       stepProvider.getSteps(function(err, steps) {
         result = err
