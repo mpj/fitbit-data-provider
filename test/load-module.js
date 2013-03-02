@@ -32,6 +32,14 @@ exports.loadModule = function(filePath, mocks) {
     }
   };
 
-  vm.runInNewContext(fs.readFileSync(filePath), context);
+  try {
+    vm.runInNewContext(fs.readFileSync(filePath), context);
+  }
+  catch(err){
+    for (var prop in err) {
+      console.log("error property", prop)
+    }
+    console.log("err",err.stack)
+  }
   return context;
 };
