@@ -57,9 +57,9 @@ describe("When fitbit expects a call to the steps resource path", function() {
       '/user/-/activities/steps/date/today/max.json',
       {
         "activities-steps":[
-          {"dateTime":"2011-04-27","value":5490},
-          {"dateTime":"2011-04-28","value":2344},
-          {"dateTime":"2011-04-29","value":2779}
+          {"dateTime":"2011-04-27","value":"5490"},
+          {"dateTime":"2011-04-28","value":"2344"},
+          {"dateTime":"2011-04-29","value":"2779"}
         ]
       })
   })
@@ -93,9 +93,9 @@ describe("When fitbit expects a call to the body weight resource path", function
       '/user/-/body/weight/date/today/max.json',
       {
         "body-weight":[
-          {"dateTime":"2012-05-16","value":76.7},
-          {"dateTime":"2012-05-17","value":76.9},
-          {"dateTime":"2012-05-18","value":76.5}
+          {"dateTime":"2012-05-16","value":"76.7"},
+          {"dateTime":"2012-05-17","value":"76.9"},
+          {"dateTime":"2012-05-18","value":"76.5"}
         ]
       })
   })

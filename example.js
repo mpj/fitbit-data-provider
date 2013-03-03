@@ -32,11 +32,15 @@ app.get('/', function (req, res) {
         tokenSecret:  token.oauth_token_secret
       })
 
-      var FitbitStepsProvider = require('./provider.js')
-      var stepsProvider = FitbitStepsProvider.getInstance()
-      stepsProvider.getSteps(function(err, steps) {
+      var FitbitDataProvider = require('./provider.js')
+      var dataProvider = FitbitDataProvider.getInstance()
+      dataProvider.getSteps(function(err, steps) {
           res.writeHead(200, {'Content-Type':'text/html'});
           res.end('<html>'+token.oauth_token+'/'+token.oauth_token_secret+JSON.stringify(steps)+'</html>');
+        });
+
+      dataProvider.getWeight(function(err, weight) {
+          console.log("*** WEIGHT", weight)
         });
     }
   });

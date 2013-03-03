@@ -1,6 +1,6 @@
 {
-    "name": "step-provider"
-  , "version": "0.0.1"
+    "name": "fitbit-data-provider"
+  , "version": "0.1.1"
   , "private": true
   , "devDependencies": {
     "mocha":  "1.8.1",
@@ -12,5 +12,4 @@
     "fitbit-js": "*",
     "fitbit-credentials-provider": "git+ssh://git@github.com:mpj/fitbit-credentials-provider.git#master"
   }
-
 }

@@ -1,17 +1,17 @@
 var fitbit = require('fitbit-js')
 var FitbitCredentialsProvider = require('fitbit-credentials-provider')
 
-function FitbitStepsProvider() {}
+function FitbitDataProvider() {}
 
-FitbitStepsProvider.getInstance = function() {
-  return new FitbitStepsProvider()
+FitbitDataProvider.getInstance = function() {
+  return new FitbitDataProvider()
 }
 
-FitbitStepsProvider.prototype.getSteps = function(callback) {
+FitbitDataProvider.prototype.getSteps = function(callback) {
   getTimeSeriesMax('activities/steps', callback)
 }
 
-FitbitStepsProvider.prototype.getWeight = function(callback) {
+FitbitDataProvider.prototype.getWeight = function(callback) {
   getTimeSeriesMax('body/weight', callback)
 }
 
@@ -47,10 +47,12 @@ function getTimeSeriesMax(resourcePath, callback) {
     points = data[propertyName]
 
     map = {}
-    points.forEach(function(p) { map[p.dateTime] = p.value })
+    points.forEach(function(p) {
+      map[p.dateTime] = parseFloat(p.value)
+    })
     callback(null, map)
   })
 
 }
 
-module.exports = FitbitStepsProvider
+module.exports = FitbitDataProvider
