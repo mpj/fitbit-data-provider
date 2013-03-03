@@ -11,6 +11,10 @@ FitbitStepsProvider.prototype.getSteps = function(callback) {
   getTimeSeriesMax('activities/steps', callback)
 }
 
+FitbitStepsProvider.prototype.getWeight = function(callback) {
+  getTimeSeriesMax('body/weight', callback)
+}
+
 function getTimeSeriesMax(resourcePath, callback) {
 
   var credentialsProvider = FitbitCredentialsProvider.getInstance()
