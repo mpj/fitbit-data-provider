@@ -7,22 +7,41 @@ FitbitDataProvider.getInstance = function() {
   return new FitbitDataProvider()
 }
 
-FitbitDataProvider.prototype.getSteps = function(callback) {
-  getTimeSeriesMax('activities/steps', callback)
+FitbitDataProvider.prototype.getSteps = function(endDate, callback) {
+  apiMonth(endDate, 'activities/steps', function(error, points){
+    if (points) {
+      var map = {}
+      points.forEach(function(p) {
+        map[p.dateTime] = parseFloat(p.value)
+      })
+    }
+    callback(error, map)
+  })
 }
 
-FitbitDataProvider.prototype.getWeight = function(callback) {
-  getTimeSeriesMax('body/weight', callback)
+FitbitDataProvider.prototype.getWeight = function(endDate, callback) {
+  apiMonth(endDate, 'body/log/weight', function(error, points) {
+    if(points) {
+      var map = {}
+      points.forEach(function(p) {
+        map[p.date] = p.weight
+      })
+    }
+    callback(error, map)
+  })
 }
 
-function getTimeSeriesMax(resourcePath, callback) {
+// Gets a month worth of data - 30 days before
+// endDate provided.
+function apiMonth(endDate, resourcePath, callback) {
 
   var credentialsProvider = FitbitCredentialsProvider.getInstance()
   var credentials = credentialsProvider.get()
   var client = fitbit(credentials.apiKey, credentials.apiSecret)
 
   var method = 'GET'
-  var url = '/user/-/' + resourcePath + '/date/today/max.json'
+  var url = '/user/-/' + resourcePath + '/date/' + dateToYMD(endDate) +'/1m.json'
+
   var params = {
     token: {
       oauth_token: credentials.token,
@@ -31,7 +50,7 @@ function getTimeSeriesMax(resourcePath, callback) {
   }
 
   client.apiCall(method, url, params, function(error, resp, data) {
-    var points, property, map
+    var points, property, output
 
     if (error) {
       callback({
@@ -41,18 +60,22 @@ function getTimeSeriesMax(resourcePath, callback) {
       return
     }
 
-    // Example: If the resource path is 'activities/steps',
-    // the name of the property will be 'activities-steps'
-    propertyName = resourcePath.replace('/', '-')
-    points = data[propertyName]
+    // The array of data that we want will always
+    // be contained in a single property on the data
+    // object. Just get whatever is in the first and
+    // only property:
+    for (propertyName in data) break;
 
-    map = {}
-    points.forEach(function(p) {
-      map[p.dateTime] = parseFloat(p.value)
-    })
-    callback(null, map)
+    callback(null, data[propertyName])
   })
 
+}
+
+function dateToYMD(date) {
+    var d = date.getDate()
+    var m = date.getMonth() + 1
+    var y = date.getFullYear()
+    return '' + y + '-' + (m<=9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
 }
 
 module.exports = FitbitDataProvider

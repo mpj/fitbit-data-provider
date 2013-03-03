@@ -54,7 +54,7 @@ describe("When fitbit expects a call to the steps resource path", function() {
   beforeEach(function() {
     fitbit = fitbitExpectsApiCall(
       credentials,
-      '/user/-/activities/steps/date/today/max.json',
+      '/user/-/activities/steps/date/2011-05-01/1m.json',
       {
         "activities-steps":[
           {"dateTime":"2011-04-27","value":"5490"},
@@ -69,7 +69,8 @@ describe("When fitbit expects a call to the steps resource path", function() {
 
     beforeEach(function(done) {
       var provider = loadProvider()
-      provider.getSteps(function(err, steps) {
+      var date = new Date(2011, 4, 1)
+      provider.getSteps(date, function(err, steps) {
         result = steps
         done()
       })
@@ -90,31 +91,47 @@ describe("When fitbit expects a call to the body weight resource path", function
   beforeEach(function() {
     fitbit = fitbitExpectsApiCall(
       credentials,
-      '/user/-/body/weight/date/today/max.json',
+      '/user/-/body/log/weight/date/2013-04-01/1m.json',
       {
-        "body-weight":[
-          {"dateTime":"2012-05-16","value":"76.7"},
-          {"dateTime":"2012-05-17","value":"76.9"},
-          {"dateTime":"2012-05-18","value":"76.5"}
+        weight: [
+          {
+            bmi: 24.54,
+            date: '2012-03-23',
+            logId: 1332547199000,
+            time: '23:59:59',
+            weight: 66
+          },{
+            bmi: 24.54,
+            date: '2012-03-28',
+            logId: 1332979199000,
+            time: '23:59:59',
+            weight: 66.7
+          },{
+            bmi: 24.76,
+            date: '2012-04-01',
+            logId: 1333324799000,
+            time: '23:59:59',
+            weight: 66.6
+          }
         ]
       })
   })
 
-
   describe('and we call getWeights', function() {
 
     beforeEach(function(done) {
+      var date = new Date(2013, 3, 1)
       var provider = loadProvider()
-      provider.getWeight(function(err, weight) {
+      provider.getWeight(date, function(err, weight) {
         result = weight
         done()
       })
     })
 
     it('should return it as simple weight data', function() {
-      result['2012-05-16'].should.equal(76.7)
-      result['2012-05-17'].should.equal(76.9)
-      result['2012-05-18'].should.equal(76.5)
+      result['2012-03-23'].should.equal(66)
+      result['2012-03-28'].should.equal(66.7)
+      result['2012-04-01'].should.equal(66.6)
     })
 
   })
@@ -137,7 +154,26 @@ describe('given that the fitbit client returns an error', function() {
     var error;
     beforeEach(function(done) {
       var stepProvider = loadProvider()
-      stepProvider.getSteps(function(err, steps) {
+      stepProvider.getSteps(new Date(), function(err, steps) {
+        error = err
+        done()
+      })
+    })
+
+    it('should have provide a nice error message', function() {
+      error.message.should.equal('Error retrieving data from Fitbit. See innerError property for more info.')
+    })
+
+    it('should have provide a nice error type', function() {
+      error.innerError.should.equal(fakeError)
+    })
+  })
+
+  describe('calls getWeight', function() {
+    var error;
+    beforeEach(function(done) {
+      var stepProvider = loadProvider()
+      stepProvider.getWeight(new Date(), function(err, steps) {
         error = err
         done()
       })

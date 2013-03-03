@@ -4,9 +4,9 @@ var app = express();
 var FitbitCredentialsProvider = require('fitbit-credentials-provider')
 
 app.use(connect.cookieParser('session secret hooray'));
-  app.use(connect.session({ secret: "session secret hooray" }));
-  app.use(express.methodOverride());
-  app.use(app.router);
+app.use(connect.session({ secret: "session secret hooray" }));
+app.use(express.methodOverride());
+app.use(app.router);
 
 var fitbit = require('fitbit-js')
 
@@ -35,13 +35,19 @@ app.get('/', function (req, res) {
       var FitbitDataProvider = require('./provider.js')
       var dataProvider = FitbitDataProvider.getInstance()
       dataProvider.getSteps(function(err, steps) {
-          res.writeHead(200, {'Content-Type':'text/html'});
-          res.end('<html>'+token.oauth_token+'/'+token.oauth_token_secret+JSON.stringify(steps)+'</html>');
-        });
+        res.writeHead(200, {'Content-Type':'text/html'});
+        res.end('<html>'+token.oauth_token+'/'+token.oauth_token_secret+JSON.stringify(steps)+'</html>');
+      });
+
+
 
       dataProvider.getWeight(function(err, weight) {
+        if(err) {
+          console.log("getWeight err", err)
+        } else {
           console.log("*** WEIGHT", weight)
-        });
+        }
+      });
     }
   });
 

@@ -1,6 +1,6 @@
 {
     "name": "fitbit-data-provider"
-  , "version": "0.1.1"
+  , "version": "1.0.0"
   , "private": true
   , "devDependencies": {
     "mocha":  "1.8.1",
