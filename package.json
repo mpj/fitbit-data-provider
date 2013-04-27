@@ -4,7 +4,8 @@
   , "private": true
   , "devDependencies": {
     "mocha":  "1.8.1",
-    "chai":   "1.5.0"
+    "chai":   "1.5.0",
+    "beautiful-lies": "3.x"
   }
   , "dependencies": {
     "express": "*",
