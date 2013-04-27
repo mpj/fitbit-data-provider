@@ -7,16 +7,39 @@ FitbitDataProvider.getInstance = function() {
   return new FitbitDataProvider()
 }
 
-FitbitDataProvider.prototype.getSteps = function(endDate, callback) {
-  apiMonth(endDate, 'activities/steps', function(error, points){
-    if (points) {
-      var map = {}
-      points.forEach(function(p) {
-        map[p.dateTime] = parseFloat(p.value)
-      })
-    }
-    callback(error, map)
-  })
+var addDays = function(date, days) {
+  var newDate = new Date(date.getTime(date))
+  newDate.setDate(date.getDate() + days)
+  return newDate
+}
+
+var parseFitbitDate = function(str) {
+  var parts = str.split('-')
+  return new Date(parts[0], parts[1] - 1, parts[2])
+}
+
+FitbitDataProvider.prototype.getSteps = function(startDate, endDate, callback) {
+
+  var map = {}
+  var cursor = addDays(startDate, -1) // -1 because the startDate is inclusive
+
+  var getOneMoreMonth = function() {
+    cursor = addDays(cursor, 31)
+    apiMonth(cursor, 'activities/steps', function(error, points){
+      if (points) {
+        points.forEach(function(p) {
+          if(parseFitbitDate(p.dateTime) < endDate)
+            map[p.dateTime] = parseFloat(p.value)
+        })
+      }
+      if (cursor > endDate)
+        callback(error, map)
+      else
+        getOneMoreMonth()
+    })
+  }
+  getOneMoreMonth()
+
 }
 
 FitbitDataProvider.prototype.getWeight = function(endDate, callback) {
@@ -41,7 +64,6 @@ function apiMonth(endDate, resourcePath, callback) {
 
   var method = 'GET'
   var url = '/user/-/' + resourcePath + '/date/' + dateToYMD(endDate) +'/1m.json'
-
   var params = {
     token: {
       oauth_token: credentials.token,
@@ -59,6 +81,7 @@ function apiMonth(endDate, resourcePath, callback) {
       }, null)
       return
     }
+
 
     // The array of data that we want will always
     // be contained in a single property on the data
