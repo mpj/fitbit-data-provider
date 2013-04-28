@@ -18,40 +18,36 @@ var parseFitbitDate = function(str) {
   return new Date(parts[0], parts[1] - 1, parts[2])
 }
 
-FitbitDataProvider.prototype.getSteps = function(startDate, endDate, callback) {
-
+var getResource = function(path, startDate, endDate, mapperFunc, callback) {
   var map = {}
   var cursor = addDays(startDate, -1) // -1 because the startDate is inclusive
 
   var getOneMoreMonth = function() {
     cursor = addDays(cursor, 31)
-    apiMonth(cursor, 'activities/steps', function(error, points){
-      if (points) {
-        points.forEach(function(p) {
-          if(parseFitbitDate(p.dateTime) < endDate)
-            map[p.dateTime] = parseFloat(p.value)
-        })
-      }
-      if (cursor > endDate)
-        callback(error, map)
-      else
-        getOneMoreMonth()
+    apiMonth(cursor, path, function(error, points) {
+      if(error) return callback(error, null)
+      points.forEach(function(p) {
+        mapperFunc(map, p)
+      })
+      if (cursor > endDate) callback(null, map)
+      else getOneMoreMonth()
     })
   }
   getOneMoreMonth()
-
 }
 
-FitbitDataProvider.prototype.getWeight = function(endDate, callback) {
-  apiMonth(endDate, 'body/log/weight', function(error, points) {
-    if(points) {
-      var map = {}
-      points.forEach(function(p) {
-        map[p.date] = p.weight
-      })
-    }
-    callback(error, map)
-  })
+FitbitDataProvider.prototype.getSteps = function(startDate, endDate, callback) {
+  getResource('activities/steps', startDate, endDate, function mapper(map, point) {
+    if(parseFitbitDate(point.dateTime) < endDate)
+      map[point.dateTime] = parseFloat(point.value)
+  }, callback)
+}
+
+FitbitDataProvider.prototype.getWeight = function(startDate, endDate, callback) {
+  getResource('body/log/weight', startDate, endDate, function mapper(map, point) {
+    if(parseFitbitDate(point.date) < endDate)
+      map[point.date] = point.weight
+  }, callback)
 }
 
 // Gets a month worth of data - 30 days before
@@ -81,8 +77,6 @@ function apiMonth(endDate, resourcePath, callback) {
       }, null)
       return
     }
-
-
     // The array of data that we want will always
     // be contained in a single property on the data
     // object. Just get whatever is in the first and

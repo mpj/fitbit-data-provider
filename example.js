@@ -34,19 +34,30 @@ app.get('/', function (req, res) {
 
       var FitbitDataProvider = require('./provider.js')
       var dataProvider = FitbitDataProvider.getInstance()
-      dataProvider.getSteps(function(err, steps) {
-        res.writeHead(200, {'Content-Type':'text/html'});
-        res.end('<html>'+token.oauth_token+'/'+token.oauth_token_secret+JSON.stringify(steps)+'</html>');
-      });
 
 
-
-      dataProvider.getWeight(function(err, weight) {
-        if(err) {
-          console.log("getWeight err", err)
+      var done = function (err) {
+        var output;
+        if (err) {
+          output = "Error" + err;
         } else {
-          console.log("*** WEIGHT", weight)
+          output = "Output has been sent to console. Token/secret: " +
+          token.oauth_token + '/' + token.oauth_token_secret
         }
+        res.writeHead(200, {'Content-Type':'text/html'});
+        res.end('<html>' + output + '</html>')
+      }
+      var startDate = new Date(2012, 3, 1);
+      var endDate = new Date(2012, 5, 1);
+
+      dataProvider.getSteps(startDate, endDate, function(err, steps) {
+        if (err) return done(err);
+        console.log("Steps:", steps)
+        dataProvider.getWeight(startDate, endDate, function(err, weight) {
+          if (err) return done(err);
+          console.log("Steps:", weight)
+          done()
+        });
       });
     }
   });

@@ -151,7 +151,8 @@ describe('fitbit-data-provider', function() {
             { dateTime: '2012-04-28', value: '7025' },
             { dateTime: '2012-04-29', value: '18498' },
             { dateTime: '2012-04-30', value: '23071' },
-            { dateTime: '2012-05-01', value: '19409' }
+            { dateTime: '2012-05-01', value: '19409' } // overflow here because fitbit considers
+                                                       // 1m = 31 days, and april has 30 days.
           ]
         })
     })
@@ -185,70 +186,149 @@ describe('fitbit-data-provider', function() {
       it('should discard overflowing data', function() {
         expect(result['2012-05-01']).to.be.undefined
       })
-      /*
-      it('should return it as simple step data', function() {
-        result['2012-05-01'].should.equal(5490)
-        result['2011-04-28'].should.equal(2344)
-        result['2011-04-29'].should.equal(2779)
-      })*/
 
     })
 
   })
 
-  xdescribe("When fitbit expects a call to the body weight resource path", function() {
+  describe("When fitbit expects a call to the body weight resource path", function() {
 
     beforeEach(function() {
       fitbit = fitbitExpectsApiCall(
         credentials,
-        '/user/-/body/log/weight/date/2013-04-01/1m.json',
+        '/user/-/body/log/weight/date/2012-03-31/1m.json',
+        { weight:
+           [ { bmi: 24.54,
+               date: '2012-03-23',
+               logId: 1332547199000,
+               time: '23:59:59',
+               weight: 66 },
+             { bmi: 24.54,
+               date: '2012-03-28',
+               logId: 1332979199000,
+               time: '23:59:59',
+               weight: 66 },
+             { bmi: 24.54,
+               date: '2012-03-29',
+               logId: 1333065599000,
+               time: '23:59:59',
+               weight: 66 },
+             { bmi: 24.76,
+               date: '2012-03-31',
+               logId: 1333238399000,
+               time: '23:59:59',
+               weight: 66.6 } ] })
+
+      fitbit = fitbitExpectsApiCall(
+        credentials,
+        '/user/-/body/log/weight/date/2012-05-01/1m.json',
         {
           weight: [
-            {
-              bmi: 24.54,
-              date: '2012-03-23',
-              logId: 1332547199000,
+            { bmi: 24.76,
+              date: '2012-03-31',
+              logId: 1333238399000,
               time: '23:59:59',
-              weight: 66
-            },{
-              bmi: 24.54,
-              date: '2012-03-28',
-              logId: 1332979199000,
-              time: '23:59:59',
-              weight: 66.7
-            },{
-              bmi: 24.76,
+              weight: 66.6 },
+            { bmi: 24.76,
               date: '2012-04-01',
               logId: 1333324799000,
               time: '23:59:59',
-              weight: 66.6
-            }
+              weight: 66.8 },
+            { bmi: 24.76,
+              date: '2012-04-11',
+              logId: 1334188799000,
+              time: '23:59:59',
+              weight: 66.6 },
+            { bmi: 25.19,
+              date: '2012-04-14',
+              logId: 1334385881000,
+              time: '06:44:41',
+              weight: 67.75 },
+            { bmi: 25.39,
+              date: '2012-04-19',
+              logId: 1334822010000,
+              time: '07:53:30',
+              weight: 68.3 },
+            { bmi: 25.77,
+              date: '2012-04-20',
+              logId: 1334903648000,
+              time: '06:34:08',
+              weight: 69.3 },
+            { bmi: 25.23,
+              date: '2012-04-21',
+              logId: 1334999241000,
+              time: '09:07:21',
+              weight: 67.85 },
+            { bmi: 25.12,
+              date: '2012-04-24',
+              logId: 1335258017000,
+              time: '09:00:17',
+              weight: 67.55 },
+            { bmi: 25.19,
+              date: '2012-04-25',
+              logId: 1335344869000,
+              time: '09:07:49',
+              weight: 67.75 },
+            { bmi: 25.15,
+              date: '2012-04-26',
+              logId: 1335426868000,
+              time: '07:54:28',
+              weight: 67.65 },
+            { bmi: 25.02,
+              date: '2012-04-27',
+              logId: 1335515931000,
+              time: '08:38:51',
+              weight: 67.3 },
+            { bmi: 25.02,
+              date: '2012-05-01',
+              logId: 1335515931000,
+              time: '09:28:41',
+              weight: 67.4 }
           ]
-        })
+        }
+      )
     })
 
     describe('and we call getWeights', function() {
 
       beforeEach(function(done) {
-        var date = new Date(2013, 3, 1)
+        var startDate = new Date(2012, 2, 1) // 1st march
+        var endDate = new Date(2012, 3, 30)  // 30th april
         var provider = loadProvider()
-        provider.getWeight(date, function(err, weight) {
+        provider.getWeight(startDate, endDate, function(err, weight) {
           result = weight
           done()
         })
       })
 
-      it('should return it as simple weight data', function() {
+      it('should yield correct data (first, first set)', function() {
         result['2012-03-23'].should.equal(66)
-        result['2012-03-28'].should.equal(66.7)
-        result['2012-04-01'].should.equal(66.6)
       })
+
+      it('should yield correct data (last, first set)', function() {
+        result['2012-03-31'].should.equal(66.6)
+      })
+
+
+      it('should yield correct data (first, second set)', function() {
+        result['2012-04-01'].should.equal(66.8)
+      })
+
+      it('should yield correct data (last, second set)', function() {
+        result['2012-04-27'].should.equal(67.3)
+      })
+
+      it('should discard overflowing data', function() {
+        expect(result['2012-05-01']).to.be.undefined
+      })
+
+
 
     })
 
   })
 
-  xdescribe('given that the fitbit client returns an error', function() {
+  describe('given that the fitbit client returns an error', function() {
     var fakeError = { message: "error!" }
     beforeEach(function() {
       fitbit = function(apiKey, apiSecret) {
@@ -264,7 +344,7 @@ describe('fitbit-data-provider', function() {
       var error;
       beforeEach(function(done) {
         var stepProvider = loadProvider()
-        stepProvider.getSteps(new Date(), function(err, steps) {
+        stepProvider.getSteps(new Date(), new Date(), function(err, steps) {
           error = err
           done()
         })
@@ -283,7 +363,7 @@ describe('fitbit-data-provider', function() {
       var error;
       beforeEach(function(done) {
         var stepProvider = loadProvider()
-        stepProvider.getWeight(new Date(), function(err, steps) {
+        stepProvider.getWeight(new Date(), new Date(), function(err, steps) {
           error = err
           done()
         })
